@@ -11,8 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\background\Shared.Background.csproj" />
-    <ProjectReference Include="..\queues.abstractions\Shared.Queue.Abstractions\Shared.Queue.Abstractions.csproj" />
+    <ProjectReference Include="..\Net.Shared.Queues.Abstractions\Net.Shared.Queues.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
