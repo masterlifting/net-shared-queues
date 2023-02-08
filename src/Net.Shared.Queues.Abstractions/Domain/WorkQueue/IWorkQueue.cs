@@ -1,4 +1,4 @@
-﻿namespace Shared.Queue.Domain.WorkQueue
+﻿namespace Net.Shared.Queues.Abstractions.Domain.WorkQueue
 {
     /// <summary>
     ///  Asynchronously processing functions in the concurrent queue

@@ -1,17 +1,20 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Net.Shared.Queues.Abstractions.Connection;
+using Net.Shared.Queues.Abstractions.Domain;
+using Net.Shared.Queues.Domain.RabbitMq;
+
+using Net.Shared.Queues.Settings.RabbitMq;
+
 using RabbitMQ.Client;
 
 using Shared.Extensions.Logging;
 using Shared.Extensions.Serialization;
-using Shared.Queue.Abstractions.Connection;
-using Shared.Queue.Abstractions.Domain;
 using Shared.Queue.Exceptions;
-using Shared.Queue.Settings.RabbitMq;
 
 using System.Text;
 
-namespace Shared.Queue.Domain.RabbitMq.Connection;
+namespace Net.Shared.Queues.Domain.RabbitMq.Connection;
 
 public sealed class RabbitMqProducer : IMqProducer
 {

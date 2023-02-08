@@ -1,6 +1,6 @@
-﻿using static Shared.Queue.Constants.Enums.RabbitMq;
+﻿using static Net.Shared.Queues.Constants.Enums.RabbitMq;
 
-namespace Shared.Queue.Domain.RabbitMq;
+namespace Net.Shared.Queues.Domain.RabbitMq;
 
 public sealed class RabbitMqExchange
 {

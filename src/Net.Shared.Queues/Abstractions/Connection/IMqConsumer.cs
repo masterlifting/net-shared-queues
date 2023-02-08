@@ -1,7 +1,7 @@
-﻿using Shared.Queue.Abstractions.Domain;
-using Shared.Queue.Abstractions.Settings;
+﻿using Net.Shared.Queues.Abstractions.Domain;
+using Net.Shared.Queues.Abstractions.Settings;
 
-namespace Shared.Queue.Abstractions.Connection;
+namespace Net.Shared.Queues.Abstractions.Connection;
 
 public interface IMqConsumer : IDisposable
 {

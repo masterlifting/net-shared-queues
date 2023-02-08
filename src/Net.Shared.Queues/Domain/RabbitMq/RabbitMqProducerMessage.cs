@@ -1,9 +1,9 @@
-﻿using Shared.Queue.Abstractions.Domain;
-using Shared.Queue.Abstractions.Settings;
+﻿using Net.Shared.Queues.Abstractions.Domain;
+using Net.Shared.Queues.Abstractions.Settings;
 
-using static Shared.Queue.Constants.Enums.RabbitMq;
+using static Net.Shared.Queues.Constants.Enums.RabbitMq;
 
-namespace Shared.Queue.Domain.RabbitMq;
+namespace Net.Shared.Queues.Domain.RabbitMq;
 
 public class RabbitMqProducerMessage : IMqProducerMessage<IMqPayload>
 {

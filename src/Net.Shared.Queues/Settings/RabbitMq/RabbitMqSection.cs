@@ -1,6 +1,6 @@
-﻿using Shared.Queue.Domain.RabbitMq.Connection;
+﻿using Net.Shared.Queues.Domain.RabbitMq.Connection;
 
-namespace Shared.Queue.Settings.RabbitMq;
+namespace Net.Shared.Queues.Settings.RabbitMq;
 
 public sealed class RabbitMqSection
 {

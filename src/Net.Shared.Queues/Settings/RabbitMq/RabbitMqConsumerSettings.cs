@@ -1,7 +1,8 @@
-﻿using Shared.Background.Settings.Models;
-using Shared.Queue.Abstractions.Settings;
+﻿using Net.Shared.Queues.Abstractions.Settings;
 
-namespace Shared.Queue.Settings.RabbitMq;
+using Shared.Background.Settings.Models;
+
+namespace Net.Shared.Queues.Settings.RabbitMq;
 
 public sealed class RabbitMqConsumerSettings : IMqConsumerSettings
 {

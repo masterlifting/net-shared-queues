@@ -1,4 +1,4 @@
-﻿namespace Shared.Queue.Settings.RabbitMq;
+﻿namespace Net.Shared.Queues.Settings.RabbitMq;
 
 public sealed class RabbitMqClientSettings
 {

@@ -1,6 +1,6 @@
-﻿using Shared.Queue.Abstractions.Settings;
+﻿using Net.Shared.Queues.Abstractions.Settings;
 
-namespace Shared.Queue.Abstractions.Domain;
+namespace Net.Shared.Queues.Abstractions.Domain;
 
 public interface IMqProducerMessage<TPayload> : IMqMessage<TPayload> where TPayload : class
 {

@@ -6,13 +6,13 @@ using RabbitMQ.Client.Events;
 using Shared.Extensions.Logging;
 
 using System.Text;
-using Shared.Queue.Abstractions.Connection;
-using Shared.Queue.Settings.RabbitMq;
-using Shared.Queue.Abstractions.Settings;
-using Shared.Queue.Abstractions.Domain;
 using Shared.Queue.Exceptions;
+using Net.Shared.Queues.Settings.RabbitMq;
+using Net.Shared.Queues.Abstractions.Domain;
+using Net.Shared.Queues.Abstractions.Connection;
+using Net.Shared.Queues.Abstractions.Settings;
 
-namespace Shared.Queue.Domain.RabbitMq.Connection;
+namespace Net.Shared.Queues.Domain.RabbitMq.Connection;
 
 public sealed class RabbitMqConsumer : IMqConsumer
 {

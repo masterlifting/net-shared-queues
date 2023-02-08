@@ -1,7 +1,7 @@
 ﻿using Shared.Exceptions.Abstractions;
 using Shared.Exceptions.Models;
 
-namespace Shared.Queue.Exceptions;
+namespace Net.Shared.Queues.Exceptions;
 
 public sealed class SharedQueueException : SharedException
 {

@@ -1,4 +1,4 @@
-﻿namespace Shared.Queue;
+﻿namespace Net.Shared.Queues;
 
 public static class Constants
 {

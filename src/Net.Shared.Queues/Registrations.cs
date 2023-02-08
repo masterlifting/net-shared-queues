@@ -1,11 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using Shared.Queue.Abstractions.Connection;
-using Shared.Queue.Domain.RabbitMq.Connection;
-using Shared.Queue.Settings.RabbitMq;
+using Net.Shared.Queues.Abstractions.Connection;
+using Net.Shared.Queues.Domain.RabbitMq.Connection;
+using Net.Shared.Queues.Settings.RabbitMq;
 
-namespace Shared.Queue;
+namespace Net.Shared.Queues;
 
 public static class Registrations
 {

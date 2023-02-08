@@ -1,6 +1,6 @@
-﻿using Shared.Queue.Abstractions.Domain;
+﻿using Net.Shared.Queues.Abstractions.Domain;
 
-namespace Shared.Queue.Domain.RabbitMq;
+namespace Net.Shared.Queues.Domain.RabbitMq;
 
 public sealed class RabbitMqQueue : IMqQueue
 {

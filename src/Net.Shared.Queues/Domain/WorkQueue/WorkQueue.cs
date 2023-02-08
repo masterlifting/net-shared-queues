@@ -1,6 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using Net.Shared.Queues.Abstractions.Domain.WorkQueue;
 
-namespace Shared.Queue.Domain.WorkQueue;
+using System.Collections.Concurrent;
+
+namespace Net.Shared.Queues.Domain.WorkQueue;
 /// <summary>
 ///  Asynchronously processing functions in the concurrent queue
 /// </summary>

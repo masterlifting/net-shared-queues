@@ -1,14 +1,13 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+using Net.Shared.Queues.Settings.RabbitMq;
+
 using RabbitMQ.Client;
 
 using Shared.Extensions.Logging;
-using Shared.Queue;
-using Shared.Queue.Domain.RabbitMq;
-using Shared.Queue.Settings.RabbitMq;
 
-namespace Shared.Queue.Domain.RabbitMq.Connection;
+namespace Net.Shared.Queues.Domain.RabbitMq.Connection;
 
 public sealed class RabbitMqClient
 {

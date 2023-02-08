@@ -1,4 +1,4 @@
-﻿namespace Shared.Queue.Abstractions.Settings;
+﻿namespace Net.Shared.Queues.Abstractions.Settings;
 
 public interface IMqConsumerSettings
 {

@@ -1,4 +1,4 @@
-﻿namespace Shared.Queue.Abstractions.Domain;
+﻿namespace Net.Shared.Queues.Abstractions.Domain;
 
 public interface IMqQueue
 {

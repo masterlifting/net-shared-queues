@@ -1,6 +1,6 @@
-﻿using Shared.Queue.Abstractions.Domain;
+﻿using Net.Shared.Queues.Abstractions.Domain;
 
-namespace Shared.Queue.Abstractions.Connection;
+namespace Net.Shared.Queues.Abstractions.Connection;
 
 public interface IMqProducer : IDisposable
 {
