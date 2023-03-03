@@ -15,21 +15,21 @@ public sealed class WorkQueue : IWorkQueue
     public WorkQueue()
     {
         _queueItems = new();
-        Task.Run(ProcessQueueItemsAsync);
+        Task.Run(ProcessQueueItems);
     }
     public WorkQueue(int itemsCount)
     {
         _queueItems = new(itemsCount);
-        Task.Run(ProcessQueueItemsAsync);
+        Task.Run(ProcessQueueItems);
     }
 
-    public Task ProcessAsync(Func<Task> func)
+    public Task Process(Func<Task> func)
     {
         TaskCompletionSource tcs = new();
         while (!_queueItems.TryAdd(new(func, tcs))) ;
         return tcs.Task;
     }
-    public Task ProcessAsync(Func<Task>[] funcs)
+    public Task Process(Func<Task>[] funcs)
     {
         List<Task> results = new(funcs.Length);
 
@@ -46,7 +46,7 @@ public sealed class WorkQueue : IWorkQueue
 
     public void Dispose() => _queueItems.Dispose();
 
-    private async Task ProcessQueueItemsAsync()
+    private async Task ProcessQueueItems()
     {
         foreach (var item in _queueItems.GetConsumingEnumerable())
         {

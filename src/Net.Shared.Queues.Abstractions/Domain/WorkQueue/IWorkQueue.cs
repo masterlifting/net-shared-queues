@@ -6,7 +6,7 @@
     /// <remarks>Disposable</remarks>
     public interface IWorkQueue : IDisposable
     {
-        Task ProcessAsync(Func<Task> func);
-        Task ProcessAsync(Func<Task>[] funcs);
+        Task Process(Func<Task> func);
+        Task Process(Func<Task>[] funcs);
     }
 }
