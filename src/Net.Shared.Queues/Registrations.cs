@@ -1,8 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-
-using Net.Shared.Queues.Abstractions.Connection;
-using Net.Shared.Queues.Domain.RabbitMq.Connection;
+using Net.Shared.Queues.Abstractions.Core.MessageQueue;
+using Net.Shared.Queues.RabbitMq;
 using Net.Shared.Queues.Settings.RabbitMq;
 
 namespace Net.Shared.Queues;

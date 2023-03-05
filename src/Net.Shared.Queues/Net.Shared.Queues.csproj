@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Net.Shared.Queues.Abstractions\Net.Shared.Queues.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\Net.Shared.Extensions\src\Net.Shared.Extensions\Net.Shared.Extensions.csproj" />
   </ItemGroup>
 
 </Project>

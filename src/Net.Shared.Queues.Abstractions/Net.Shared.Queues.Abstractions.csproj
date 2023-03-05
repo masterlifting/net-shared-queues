@@ -6,4 +6,9 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Net.Shared.Queues.Models\Net.Shared.Queues.Models.csproj" />
+    <ProjectReference Include="..\..\..\Net.Shared.Persistence.Abstractions\src\Net.Shared.Persistence.Abstractions\Net.Shared.Persistence.Abstractions.csproj" />
+  </ItemGroup>
+
 </Project>
