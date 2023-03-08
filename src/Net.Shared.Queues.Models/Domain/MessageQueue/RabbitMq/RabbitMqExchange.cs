@@ -1,6 +1,6 @@
 ﻿using static Net.Shared.Queues.Models.Constants.Enums.RabbitMq;
 
-namespace Net.Shared.Queues.Models.RabbitMq.Domain;
+namespace Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
 
 public sealed record RabbitMqExchange
 {

@@ -9,7 +9,7 @@ namespace Net.Shared.Queues.RabbitMq;
 
 public sealed class RabbitMqProducer : IMqProducer
 {
-    private readonly string _initiator;
+    private readonly string _producerInfo;
 
     private readonly ILogger<RabbitMqProducer> _logger;
     private readonly RabbitMqClient _client;
@@ -21,7 +21,7 @@ public sealed class RabbitMqProducer : IMqProducer
         _client = client;
 
         var objectId = GetHashCode();
-        _initiator = $"RabbitMq Producer {objectId}";
+        _producerInfo = $"RabbitMq producer {objectId}";
     }
 
     public bool TryPublish<TPayload>(IMqProducerMessage<TPayload> message, out string error) where TPayload : class
@@ -51,14 +51,14 @@ public sealed class RabbitMqProducer : IMqProducer
         _model?.Close();
         _model?.Dispose();
 
-        _logger.LogDebug(_initiator, Constants.Actions.Disconnect, Constants.Actions.Success);
+        _logger.LogDebug(_producerInfo, Constants.Actions.Disconnect, Constants.Actions.Success);
     }
 
     private void Publish(RabbitMqProducerMessage message)
     {
-        _model ??= _client.CreateModel();
+        _model ??= _client.CreateModelSync();
 
-        _logger.LogTrace(_initiator, Constants.Actions.Post, Constants.Actions.Start, message.Id);
+        _logger.LogTrace(_producerInfo, Constants.Actions.Post, Constants.Actions.Start, message.Id);
 
         var exchangeName = string.Intern($"{message.Exchange}");
         _model.BasicPublish(
@@ -67,7 +67,7 @@ public sealed class RabbitMqProducer : IMqProducer
             , new BasicProperties(message)
             , Encoding.UTF8.GetBytes(message.Payload.Serialize()));
 
-        _logger.LogTrace(_initiator, Constants.Actions.Post, Constants.Actions.Success, message.Id);
+        _logger.LogTrace(_producerInfo, Constants.Actions.Post, Constants.Actions.Success, message.Id);
     }
     private class BasicProperties : IBasicProperties
     {

@@ -1,6 +1,4 @@
-﻿using Net.Shared.Queues.Models.Settings.Core;
-
-namespace Net.Shared.Queues.Models.RabbitMq.Settings;
+﻿namespace Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 
 public sealed record RabbitMqConsumerSettings : MqConsumerSettings
 {

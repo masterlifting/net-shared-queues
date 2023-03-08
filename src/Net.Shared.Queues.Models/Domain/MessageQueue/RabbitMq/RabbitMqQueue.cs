@@ -1,4 +1,4 @@
-﻿namespace Net.Shared.Queues.Models.RabbitMq.Domain;
+﻿namespace Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
 
 public sealed record RabbitMqQueue
 {

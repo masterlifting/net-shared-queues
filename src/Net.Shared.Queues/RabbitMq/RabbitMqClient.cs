@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Net.Shared.Queues.Models.RabbitMq.Domain;
-using Net.Shared.Queues.Models.RabbitMq.Settings;
+using Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
+using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 using RabbitMQ.Client;
 
 namespace Net.Shared.Queues.RabbitMq;
@@ -32,7 +32,7 @@ public sealed class RabbitMqClient
         _info = $"RabbitMq client {objectId}";
     }
 
-    public IModel CreateModel()
+    public IModel CreateModelSync()
     {
         if (!_isRegister)
             Register();
@@ -49,7 +49,7 @@ public sealed class RabbitMqClient
 
     private void Register()
     {
-        using var model = CreateModel();
+        using var model = CreateModelSync();
 
         _logger.LogTrace($"{_info} registering models...");
 
