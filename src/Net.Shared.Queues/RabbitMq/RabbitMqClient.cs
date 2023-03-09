@@ -1,74 +1,141 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using Net.Shared.Extensions;
 using Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
+using Net.Shared.Queues.Models.RabbitMq.Domain;
 using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
+using Net.Shared.Queues.RabbitMq.Domain;
+
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+
+using System.Text;
 
 namespace Net.Shared.Queues.RabbitMq;
 
-public sealed class RabbitMqClient
+public sealed class RabbitMqClient : IDisposable
 {
-    private bool _isRegister;
-    private readonly string _info;
+    private bool _isConsumerReady;
+    private readonly string _clientInfo;
 
+    private IModel? _model;
     private readonly ILogger<RabbitMqClient> _logger;
-    private readonly RabbitMqClientSettings _settings;
-    private readonly ConnectionFactory _connectionFactory;
+    private readonly RabbitMqClientSettings _clientSettings;
 
     public RabbitMqClient(ILogger<RabbitMqClient> logger, IOptions<RabbitMqClientSettings> options)
     {
         _logger = logger;
-
-        _settings = options.Value;
-
-        _connectionFactory = new ConnectionFactory
-        {
-            HostName = _settings.Connection.Host,
-            UserName = _settings.Connection.User,
-            Password = _settings.Connection.Password
-        };
+        _clientSettings = options.Value;
 
         var objectId = GetHashCode();
-        _info = $"RabbitMq client {objectId}";
+        _clientInfo = $"RabbitMq client {objectId}";
     }
 
-    public IModel CreateModelSync()
+    public void RegisterConsumerSync(RabbitMqConsumerSettings consumerSettings, AsyncEventHandler<BasicDeliverEventArgs> receivedHandler)
     {
-        if (!_isRegister)
-            Register();
+        if (_isConsumerReady)
+            return;
 
-        _logger.LogTrace($"{_info} connecting...");
+        ConnectSync();
 
-        using var connection = _connectionFactory.CreateConnection();
-        var model = connection.CreateModel();
+        _logger.LogTrace($"{_clientInfo} registering...");
 
-        _logger.LogTrace($"{_info} connected.");
+        foreach (var item in _clientSettings.ModelBuilders)
+            RegisterModelSync(item.Exchange, item.Queue);
 
-        return model;
+        _logger.LogTrace($"{_clientInfo} has registered.");
+
+
+        _logger.LogTrace($"{_clientInfo} subscribing...");
+        var consumer = new AsyncEventingBasicConsumer(_model);
+
+        consumer.Received += receivedHandler;
+
+        _model!.BasicConsume(
+            consumerSettings.Queue,
+            consumerSettings.IsAutoAck,
+            consumerSettings.ConsumerTag,
+            consumerSettings.IsNoLocal,
+            consumerSettings.IsExclusiveQueue,
+            consumerSettings.Arguments,
+            consumer);
+
+        _logger.LogTrace($"{_clientInfo} has subscribed");
+
+        _isConsumerReady = true;
     }
 
-    private void Register()
+    public void PublishMessageSync<TPayload>(RabbitMqProducerSettings producerSettings, RabbitMqProducerMessage<TPayload> message)
+        where TPayload : notnull
     {
-        using var model = CreateModelSync();
+        ConnectSync();
 
-        _logger.LogTrace($"{_info} registering models...");
+        _logger.LogTrace($"{_clientInfo} publishing message with Id '{message.Id}'...");
 
-        foreach (var item in _settings.ModelBuilders)
-            Register(model, item.Exchange, item.Queue);
+        var exchangeName = string.Intern($"{message.Exchange}");
 
-        _isRegister = true;
+        _model.BasicPublish(
+            exchangeName
+            , $"{exchangeName}.{message.Queue.Name}"
+            , new RabbitMqProducerMessageBasicProperties<TPayload>(producerSettings, message)
+            , Encoding.UTF8.GetBytes("message.Payload.SerializeSync()"));
 
-        _logger.LogTrace($"{_info} has registered models.");
+        _logger.LogTrace($"{_clientInfo} the message with Id '{message.Id}' was published.");
     }
-    private static void Register(IModel model, RabbitMqExchange exchange, RabbitMqQueue queue)
+    public void PublishMessagesSync<TPayload>(RabbitMqProducerSettings producerSettings, IEnumerable<RabbitMqProducerMessage<TPayload>> messages)
+        where TPayload : notnull
+    {
+        ConnectSync();
+
+        _logger.LogTrace($"{_clientInfo} publishing messages with count '{messages.Count()}'...");
+
+        var isSerializable = typeof(TPayload) as object != null;
+
+        foreach (var message in messages)
+        {
+            var exchangeName = string.Intern($"{message.Exchange}");
+
+            _model.BasicPublish(
+                exchangeName
+                , $"{exchangeName}.{message.Queue.Name}"
+                , new RabbitMqProducerMessageBasicProperties<TPayload>(producerSettings, message)
+                , Encoding.UTF8.GetBytes("message.Payload.SerializeSync()"));
+        }
+
+        _logger.LogTrace($"{_clientInfo} the message with count '{messages.Count()}' was published.");
+    }
+    
+    public void Dispose() => _model?.Dispose();
+
+    private void ConnectSync()
+    {
+        if (_model is null)
+        {
+            _logger.LogTrace($"{_clientInfo} connecting...");
+
+            var connectionFactory = new ConnectionFactory
+            {
+                HostName = _clientSettings.Connection.Host,
+                UserName = _clientSettings.Connection.User,
+                Password = _clientSettings.Connection.Password
+            };
+
+            using var connection = connectionFactory.CreateConnection();
+            _model = connection.CreateModel();
+
+            _logger.LogTrace($"{_clientInfo} has connected.");
+        }
+    }
+    private void RegisterModelSync(RabbitMqExchange exchange, RabbitMqQueue queue)
     {
         var exchangeType = string.Intern(exchange.Type.ToString());
         var exchangeName = string.Intern(exchange.Name.ToString());
         var routingKey = string.Intern($"{exchangeName}.{queue.Name}.*");
 
-        model.ExchangeDeclare(exchangeName, exchangeType, exchange.IsDurable, exchange.IsAutoDelete, exchange.Arguments);
-        model.QueueDeclare(queue.Name, queue.IsDurable, queue.IsExclusive, queue.IsAutoDelete, queue.Arguments);
+        _model!.ExchangeDeclare(exchangeName, exchangeType, exchange.IsDurable, exchange.IsAutoDelete, exchange.Arguments);
+        _model.QueueDeclare(queue.Name, queue.IsDurable, queue.IsExclusive, queue.IsAutoDelete, queue.Arguments);
 
-        model.QueueBind(queue.Name, exchangeName, routingKey);
+        _model.QueueBind(queue.Name, exchangeName, routingKey);
     }
 }

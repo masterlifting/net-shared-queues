@@ -1,19 +1,20 @@
-﻿using System.Text;
-using Microsoft.Extensions.Logging;
-using Net.Shared.Queues.Abstractions.Abstractions.Domain;
+﻿using Microsoft.Extensions.Logging;
+
+using Net.Shared.Models.Domain;
 using Net.Shared.Queues.Abstractions.Core.MessageQueue;
-using Net.Shared.Queues.Models;
-using RabbitMQ.Client;
+using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
+using Net.Shared.Queues.Models.Exceptions;
+using Net.Shared.Queues.Models.RabbitMq.Domain;
+using Net.Shared.Queues.Models.Settings.MessageQueue;
+using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 
 namespace Net.Shared.Queues.RabbitMq;
 
 public sealed class RabbitMqProducer : IMqProducer
 {
     private readonly string _producerInfo;
-
-    private readonly ILogger<RabbitMqProducer> _logger;
     private readonly RabbitMqClient _client;
-    private IModel? _model;
+    private readonly ILogger<RabbitMqProducer> _logger;
 
     public RabbitMqProducer(ILogger<RabbitMqProducer> logger, RabbitMqClient client)
     {
@@ -24,111 +25,40 @@ public sealed class RabbitMqProducer : IMqProducer
         _producerInfo = $"RabbitMq producer {objectId}";
     }
 
-    public bool TryPublish<TPayload>(IMqProducerMessage<TPayload> message, out string error) where TPayload : class
+    public Task Produce<TMessage, TPayload>(IEnumerable<TMessage> messages, MqProducerSettings settings, CancellationToken cToken)
+        where TMessage : class, IMqMessage<TPayload>
+        where TPayload : notnull
     {
-        error = string.Empty;
+        var producerSettings =
+            settings as RabbitMqProducerSettings
+            ?? throw new NetSharedQueuesException($"Configuration '{nameof(RabbitMqProducerSettings)}' was not found.");
 
+        var _messages = messages is IEnumerable<RabbitMqProducerMessage<TPayload>>
+            ? (messages as IEnumerable<RabbitMqProducerMessage<TPayload>>)!
+            : throw new NetSharedQueuesException("Messages have incorrected format.");
+
+        _client.PublishMessagesSync(producerSettings, _messages);
+
+        return Task.CompletedTask;
+    }
+    public async Task<TryResult<bool>> TryProduce<TMessage, TPayload>(IEnumerable<TMessage> messages, MqProducerSettings settings, CancellationToken cToken)
+        where TMessage : class, IMqMessage<TPayload>
+        where TPayload : notnull
+    {
         try
         {
-            Publish((RabbitMqProducerMessage)message);
+            await Produce<TMessage, TPayload>(messages, settings, cToken);
 
-            return true;
+            return new(true);
         }
         catch (Exception exception)
         {
-            _logger.LogError(new SharedQueueException(nameof(RabbitMqProducer), Constants.Actions.Post, new(exception)));
-
-            return false;
+            return new(exception);
         }
     }
-    public void Publish<TPayload>(IMqProducerMessage<TPayload> message) where TPayload : class
-    {
-        Publish((RabbitMqProducerMessage)message);
-    }
-
     public void Dispose()
     {
-        _model?.Close();
-        _model?.Dispose();
-
-        _logger.LogDebug(_producerInfo, Constants.Actions.Disconnect, Constants.Actions.Success);
-    }
-
-    private void Publish(RabbitMqProducerMessage message)
-    {
-        _model ??= _client.CreateModelSync();
-
-        _logger.LogTrace(_producerInfo, Constants.Actions.Post, Constants.Actions.Start, message.Id);
-
-        var exchangeName = string.Intern($"{message.Exchange}");
-        _model.BasicPublish(
-            exchangeName
-            , $"{exchangeName}.{message.Queue.Name}"
-            , new BasicProperties(message)
-            , Encoding.UTF8.GetBytes(message.Payload.Serialize()));
-
-        _logger.LogTrace(_producerInfo, Constants.Actions.Post, Constants.Actions.Success, message.Id);
-    }
-    private class BasicProperties : IBasicProperties
-    {
-        private readonly RabbitMqProducerMessageSettings _settings;
-
-        public BasicProperties(RabbitMqProducerMessage message)
-        {
-            Headers = message.Headers.ToDictionary(x => x.Key, y => y.Value as object);
-            Headers.Add("VERSION", message.Version);
-            _settings = message.Settings as RabbitMqProducerMessageSettings ?? new RabbitMqProducerMessageSettings();
-        }
-
-        public ushort ProtocolClassId => 0;
-        public string? ProtocolClassName => null;
-
-        public IDictionary<string, object> Headers { get; set; }
-
-        public string? AppId { get; set; }
-        public string? ClusterId { get; set; }
-        public string? ContentEncoding { get; set; }
-        public string? ContentType { get; set; }
-        public string? CorrelationId { get; set; }
-        public byte DeliveryMode { get; set; }
-        public string? Expiration { get; set; }
-        public string? MessageId { get; set; }
-        public bool Persistent { get; set; }
-        public byte Priority { get; set; }
-        public string? ReplyTo { get; set; }
-        public PublicationAddress? ReplyToAddress { get; set; }
-        public AmqpTimestamp Timestamp { get; set; }
-        public string? Type { get; set; }
-        public string? UserId { get; set; }
-
-
-        public void ClearAppId() => throw new NotImplementedException();
-        public void ClearClusterId() => throw new NotImplementedException();
-        public void ClearContentEncoding() => throw new NotImplementedException();
-        public void ClearContentType() => throw new NotImplementedException();
-        public void ClearCorrelationId() => throw new NotImplementedException();
-        public void ClearDeliveryMode() => throw new NotImplementedException();
-        public void ClearExpiration() => throw new NotImplementedException();
-        public void ClearHeaders() => throw new NotImplementedException();
-        public void ClearMessageId() => throw new NotImplementedException();
-        public void ClearPriority() => throw new NotImplementedException();
-        public void ClearReplyTo() => throw new NotImplementedException();
-        public void ClearTimestamp() => throw new NotImplementedException();
-        public void ClearType() => throw new NotImplementedException();
-        public void ClearUserId() => throw new NotImplementedException();
-        public bool IsAppIdPresent() => throw new NotImplementedException();
-        public bool IsClusterIdPresent() => throw new NotImplementedException();
-        public bool IsContentEncodingPresent() => throw new NotImplementedException();
-        public bool IsContentTypePresent() => throw new NotImplementedException();
-        public bool IsCorrelationIdPresent() => throw new NotImplementedException();
-        public bool IsDeliveryModePresent() => throw new NotImplementedException();
-        public bool IsExpirationPresent() => throw new NotImplementedException();
-        public bool IsHeadersPresent() => throw new NotImplementedException();
-        public bool IsMessageIdPresent() => throw new NotImplementedException();
-        public bool IsPriorityPresent() => throw new NotImplementedException();
-        public bool IsReplyToPresent() => throw new NotImplementedException();
-        public bool IsTimestampPresent() => throw new NotImplementedException();
-        public bool IsTypePresent() => throw new NotImplementedException();
-        public bool IsUserIdPresent() => throw new NotImplementedException();
+        _client.Dispose();
+        _logger.LogDebug($"{_producerInfo} was disconnected.");
     }
 }

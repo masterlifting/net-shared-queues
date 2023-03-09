@@ -13,7 +13,7 @@ public static class Registrations
     {
         services.Configure<RabbitMqSection>(_ => configuration.GetSection(RabbitMqSection.Name));
         services.AddSingleton<RabbitMqClient>();
-        services.AddTransient<IMqConsumer, RabbitMqConsumer_Old>();
+        services.AddTransient<IMqConsumer, RabbitMqConsumer>();
         services.AddTransient<IMqProducer, RabbitMqProducer>();
     }
 }

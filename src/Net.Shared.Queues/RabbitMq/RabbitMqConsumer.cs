@@ -1,24 +1,30 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Net.Shared.Models.Domain;
 using Net.Shared.Queues.Abstractions.Core.MessageQueue;
 using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
+using Net.Shared.Queues.Models.Exceptions;
 using Net.Shared.Queues.Models.RabbitMq.Domain;
 using Net.Shared.Queues.Models.Settings.MessageQueue;
+using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+
 using System.Text;
 
 namespace Net.Shared.Queues.RabbitMq;
 
 public sealed class RabbitMqConsumer : IMqConsumer
 {
+    private static readonly SemaphoreSlim _semaphore = new(1, 1);
+
     private readonly string _consumerInfo;
     private readonly RabbitMqClient _client;
-    private readonly ILogger<RabbitMqConsumer_Old> _logger;
+    private readonly ILogger<RabbitMqConsumer> _logger;
     private readonly List<RabbitMqConsumerMessage> _messages;
 
-    public RabbitMqConsumer(ILogger<RabbitMqConsumer_Old> logger, RabbitMqClient client)
+    public RabbitMqConsumer(ILogger<RabbitMqConsumer> logger, RabbitMqClient client)
     {
         _client = client;
         _logger = logger;
@@ -28,20 +34,72 @@ public sealed class RabbitMqConsumer : IMqConsumer
         var objectId = GetHashCode();
         _consumerInfo = $"RabbitMq consumer {objectId}";
     }
-    public Task Consume<TPayload>(Func<MqConsumerSettings, IReadOnlyCollection<IMqMessage<TPayload>>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken) where TPayload : class
+
+    public Task Consume<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
+        where TMessage : class, IMqMessage<TPayload>
+        where TPayload : notnull
     {
-        throw new NotImplementedException();
+        var consumerSettings =
+            settings as RabbitMqConsumerSettings
+            ?? throw new NetSharedQueuesException($"Configuration '{nameof(RabbitMqConsumerSettings)}' was not found.");
+
+        _client.RegisterConsumerSync(consumerSettings, OnReceived);
+
+        async Task OnReceived(object? _, BasicDeliverEventArgs args)
+        {
+            var message = GetMessage(args);
+
+            await _semaphore.WaitAsync(cToken);
+            _messages.Add(message);
+
+            if (_messages.Count == settings.Limit)
+                await Invoke<TMessage, TPayload>(handler, settings, cToken);
+
+            _semaphore.Release();
+        }
+
+        return Task.CompletedTask;
     }
-    public Task<bool> TryConsume<TPayload>(Func<MqConsumerSettings, IReadOnlyCollection<IMqMessage<TPayload>>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken, out string error) where TPayload : class
+    public async Task<TryResult<bool>> TryConsume<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
+        where TMessage : class, IMqMessage<TPayload>
+        where TPayload : notnull
     {
-        throw new NotImplementedException();
+        try
+        {
+            await Consume<TMessage, TPayload>(handler, settings, cToken);
+
+            return new(true);
+        }
+        catch (Exception exception)
+        {
+            return new(exception);
+        }
     }
     public void Dispose()
     {
+        _client.Dispose();
         _logger.LogDebug($"{_consumerInfo} was disconnected.");
     }
 
+    private Task Invoke<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
+        where TMessage : class, IMqMessage<TPayload>
+        where TPayload : notnull
+    {
+        try
+        {
+            return handler.Invoke(settings, (IEnumerable<TMessage>)_messages, cToken);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(new NetSharedQueuesException(exception));
+        }
+        finally
+        {
+            _messages.Clear();
+        }
 
+        return Task.CompletedTask;
+    }
     private static Dictionary<string, string> GetMessageHeaders(IBasicProperties properties)
     {
         var headers = new Dictionary<string, string>(properties.Headers.Count, StringComparer.OrdinalIgnoreCase);
