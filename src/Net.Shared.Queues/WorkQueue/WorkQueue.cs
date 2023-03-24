@@ -25,18 +25,20 @@ public sealed class WorkQueue : IWorkQueue
     public Task Process(Func<Task> func)
     {
         TaskCompletionSource tcs = new();
-        while (!_queueItems.TryAdd(new(func, tcs))) ;
-        return tcs.Task;
+
+        return _queueItems.TryAdd(new(func, tcs))
+            ? tcs.Task
+            : Task.CompletedTask;
     }
     public Task Process(Func<Task>[] funcs)
     {
         List<Task> results = new(funcs.Length);
 
-        foreach (var func in funcs)
+        for (int i = 0; i < funcs.Length; i++)
         {
             TaskCompletionSource tcs = new();
 
-            while (!_queueItems.TryAdd(new(func, tcs)))
+            if (_queueItems.TryAdd(new(funcs[i], tcs)))
                 results.Add(tcs.Task);
         }
 
