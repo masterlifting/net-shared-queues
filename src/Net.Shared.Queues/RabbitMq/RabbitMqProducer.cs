@@ -31,17 +31,17 @@ public sealed class RabbitMqProducer : IMqProducer
     {
         var producerSettings =
             settings as RabbitMqProducerSettings
-            ?? throw new NetSharedQueuesException($"Configuration '{nameof(RabbitMqProducerSettings)}' was not found.");
+            ?? throw new QueuesException($"Configuration '{nameof(RabbitMqProducerSettings)}' was not found.");
 
         var _messages = messages is IEnumerable<RabbitMqProducerMessage<TPayload>>
             ? (messages as IEnumerable<RabbitMqProducerMessage<TPayload>>)!
-            : throw new NetSharedQueuesException("Messages have incorrected format.");
+            : throw new QueuesException("Messages have incorrected format.");
 
         _client.PublishMessagesSync(producerSettings, _messages);
 
         return Task.CompletedTask;
     }
-    public async Task<TryResult<bool>> TryProduce<TMessage, TPayload>(IEnumerable<TMessage> messages, MqProducerSettings settings, CancellationToken cToken)
+    public async Task<Result<bool>> TryProduce<TMessage, TPayload>(IEnumerable<TMessage> messages, MqProducerSettings settings, CancellationToken cToken)
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull
     {

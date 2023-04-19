@@ -41,7 +41,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
     {
         var consumerSettings =
             settings as RabbitMqConsumerSettings
-            ?? throw new NetSharedQueuesException($"Configuration '{nameof(RabbitMqConsumerSettings)}' was not found.");
+            ?? throw new QueuesException($"Configuration '{nameof(RabbitMqConsumerSettings)}' was not found.");
 
         _client.RegisterConsumerSync(consumerSettings, OnReceived);
 
@@ -60,7 +60,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
 
         return Task.CompletedTask;
     }
-    public async Task<TryResult<bool>> TryConsume<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
+    public async Task<Result<bool>> TryConsume<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull
     {
@@ -91,7 +91,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
         }
         catch (Exception exception)
         {
-            _logger.LogError(new NetSharedQueuesException(exception));
+            _logger.LogError(new QueuesException(exception));
         }
         finally
         {

@@ -12,7 +12,7 @@ public interface IMqConsumer : IDisposable
         CancellationToken cToken)
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull;
-    Task<TryResult<bool>> TryConsume<TMessage, TPayload>(
+    Task<Result<bool>> TryConsume<TMessage, TPayload>(
         Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler,
         MqConsumerSettings settings,
         CancellationToken cToken)
