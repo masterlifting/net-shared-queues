@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
+using Net.Shared.Extensions.Logging;
 using Net.Shared.Models.Domain;
 using Net.Shared.Queues.Abstractions.Core.MessageQueue;
 using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
@@ -59,6 +60,6 @@ public sealed class RabbitMqProducer : IMqProducer
     public void Dispose()
     {
         _client.Dispose();
-        _logger.LogDebug($"{_producerInfo} was disconnected.");
+        _logger.Debug($"{_producerInfo} was disconnected.");
     }
 }

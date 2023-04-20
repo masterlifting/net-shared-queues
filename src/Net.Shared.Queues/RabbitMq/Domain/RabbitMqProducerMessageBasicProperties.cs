@@ -14,8 +14,8 @@ namespace Net.Shared.Queues.RabbitMq.Domain
             _settings = settings;
 
             Headers = message.Headers.ToDictionary(x => x.Key, y => y.Value);
-            
-            if(message.Version is not null)
+
+            if (message.Version is not null)
                 Headers.Add("VERSION", message.Version);
         }
 
@@ -39,7 +39,6 @@ namespace Net.Shared.Queues.RabbitMq.Domain
         public AmqpTimestamp Timestamp { get; set; }
         public string? Type { get; set; }
         public string? UserId { get; set; }
-
 
         public void ClearAppId() => throw new NotImplementedException();
         public void ClearClusterId() => throw new NotImplementedException();

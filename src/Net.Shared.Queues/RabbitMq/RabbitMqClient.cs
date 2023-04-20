@@ -1,16 +1,14 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using Net.Shared.Extensions;
+using Net.Shared.Extensions.Logging;
 using Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
 using Net.Shared.Queues.Models.RabbitMq.Domain;
 using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
-
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-
-using System.Text;
 
 namespace Net.Shared.Queues.RabbitMq;
 
@@ -39,15 +37,14 @@ public sealed class RabbitMqClient : IDisposable
 
         ConnectSync();
 
-        _logger.LogTrace($"{_clientInfo} registering...");
+        _logger.Trace($"{_clientInfo} registering...");
 
         foreach (var item in _clientSettings.ModelBuilders)
             RegisterModelSync(item.Exchange, item.Queue);
 
-        _logger.LogTrace($"{_clientInfo} has registered.");
+        _logger.Trace($"{_clientInfo} has registered.");
 
-
-        _logger.LogTrace($"{_clientInfo} subscribing...");
+        _logger.Trace($"{_clientInfo} subscribing...");
         var consumer = new AsyncEventingBasicConsumer(_model);
 
         consumer.Received += receivedHandler;
@@ -61,7 +58,7 @@ public sealed class RabbitMqClient : IDisposable
             consumerSettings.Arguments,
             consumer);
 
-        _logger.LogTrace($"{_clientInfo} has subscribed");
+        _logger.Trace($"{_clientInfo} has subscribed");
 
         _isConsumerReady = true;
     }
@@ -71,7 +68,7 @@ public sealed class RabbitMqClient : IDisposable
     {
         ConnectSync();
 
-        _logger.LogTrace($"{_clientInfo} publishing message with Id '{message.Id}'...");
+        _logger.Trace($"{_clientInfo} publishing message with Id '{message.Id}'...");
 
         var exchangeName = string.Intern($"{message.Exchange}");
 
@@ -81,16 +78,15 @@ public sealed class RabbitMqClient : IDisposable
             , new RabbitMqProducerMessageBasicProperties<TPayload>(producerSettings, message)
             , Encoding.UTF8.GetBytes("message.Payload.SerializeSync()"));
 
-        _logger.LogTrace($"{_clientInfo} the message with Id '{message.Id}' was published.");
+        _logger.Trace($"{_clientInfo} the message with Id '{message.Id}' was published.");
     }
     public void PublishMessagesSync<TPayload>(RabbitMqProducerSettings producerSettings, IEnumerable<RabbitMqProducerMessage<TPayload>> messages)
         where TPayload : notnull
     {
         ConnectSync();
 
-        _logger.LogTrace($"{_clientInfo} publishing messages with count '{messages.Count()}'...");
-
-        var isSerializable = typeof(TPayload) as object != null;
+        _logger.Trace($"{_clientInfo} publishing messages with count '{messages.Count()}'...");
+        _ = typeof(TPayload) is not null;
 
         foreach (var message in messages)
         {
@@ -103,16 +99,16 @@ public sealed class RabbitMqClient : IDisposable
                 , Encoding.UTF8.GetBytes("message.Payload.SerializeSync()"));
         }
 
-        _logger.LogTrace($"{_clientInfo} the message with count '{messages.Count()}' was published.");
+        _logger.Trace($"{_clientInfo} the message with count '{messages.Count()}' was published.");
     }
-    
+
     public void Dispose() => _model?.Dispose();
 
     private void ConnectSync()
     {
         if (_model is null)
         {
-            _logger.LogTrace($"{_clientInfo} connecting...");
+            _logger.Trace($"{_clientInfo} connecting...");
 
             var connectionFactory = new ConnectionFactory
             {
@@ -124,7 +120,7 @@ public sealed class RabbitMqClient : IDisposable
             using var connection = connectionFactory.CreateConnection();
             _model = connection.CreateModel();
 
-            _logger.LogTrace($"{_clientInfo} has connected.");
+            _logger.Trace($"{_clientInfo} has connected.");
         }
     }
     private void RegisterModelSync(RabbitMqExchange exchange, RabbitMqQueue queue)

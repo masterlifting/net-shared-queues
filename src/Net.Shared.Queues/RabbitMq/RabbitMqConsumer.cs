@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System.Text;
+using Microsoft.Extensions.Logging;
 
+using Net.Shared.Extensions.Logging;
 using Net.Shared.Models.Domain;
 using Net.Shared.Queues.Abstractions.Core.MessageQueue;
 using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
@@ -7,11 +9,8 @@ using Net.Shared.Queues.Models.Exceptions;
 using Net.Shared.Queues.Models.RabbitMq.Domain;
 using Net.Shared.Queues.Models.Settings.MessageQueue;
 using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
-
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-
-using System.Text;
 
 namespace Net.Shared.Queues.RabbitMq;
 
@@ -78,27 +77,28 @@ public sealed class RabbitMqConsumer : IMqConsumer
     public void Dispose()
     {
         _client.Dispose();
-        _logger.LogDebug($"{_consumerInfo} was disconnected.");
+        _logger.Debug($"{_consumerInfo} was disconnected.");
     }
 
-    private Task Invoke<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
+    private async Task Invoke<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull
     {
         try
         {
-            return handler.Invoke(settings, (IEnumerable<TMessage>)_messages, cToken);
+            await handler.Invoke(settings, (IEnumerable<TMessage>)_messages, cToken);
+            return;
         }
         catch (Exception exception)
         {
-            _logger.LogError(new QueuesException(exception));
+            _logger.Error(new QueuesException(exception));
         }
         finally
         {
             _messages.Clear();
         }
 
-        return Task.CompletedTask;
+        return;
     }
     private static Dictionary<string, string> GetMessageHeaders(IBasicProperties properties)
     {

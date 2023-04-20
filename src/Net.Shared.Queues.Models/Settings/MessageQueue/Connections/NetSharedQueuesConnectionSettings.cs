@@ -2,6 +2,6 @@
 
 namespace Net.Shared.Queues.Models.Settings.MessageQueue.Connections;
 
-public abstract record NetSharedQueuesConnectionSettings : ConnectionSettings
+public abstract record NetSharedQueuesConnectionSettings : Connection
 {
 }
