@@ -54,7 +54,7 @@ public sealed class RabbitMqProducer : IMqProducer
         }
         catch (Exception exception)
         {
-            return new(exception);
+            return new(new QueuesException(exception));
         }
     }
     public void Dispose()

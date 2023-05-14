@@ -71,7 +71,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
         }
         catch (Exception exception)
         {
-            return new(exception);
+            return new(new QueuesException(exception));
         }
     }
     public void Dispose()
