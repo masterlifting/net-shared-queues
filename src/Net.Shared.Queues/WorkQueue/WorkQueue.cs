@@ -23,21 +23,21 @@ public sealed class WorkQueue : IWorkQueue
         Task.Run(ProcessQueueItems);
     }
 
-    public Task Process(Func<Task> func)
+    public Task Process(Func<Task> func, CancellationToken cToken)
     {
-        TaskCompletionSource tcs = new();
+        TaskCompletionSource tcs = new(cToken);
 
         return _queueItems.TryAdd(new(func, tcs))
             ? tcs.Task
             : Task.CompletedTask;
     }
-    public Task Process(Func<Task>[] funcs)
+    public Task Process(Func<Task>[] funcs, CancellationToken cToken)
     {
         List<Task> results = new(funcs.Length);
 
         for (int i = 0; i < funcs.Length; i++)
         {
-            TaskCompletionSource tcs = new();
+            TaskCompletionSource tcs = new(cToken);
 
             if (_queueItems.TryAdd(new(funcs[i], tcs)))
                 results.Add(tcs.Task);

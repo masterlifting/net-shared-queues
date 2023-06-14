@@ -6,6 +6,6 @@
 /// <remarks>Disposable</remarks>
 public interface IWorkQueue : IDisposable
 {
-    Task Process(Func<Task> func);
-    Task Process(Func<Task>[] funcs);
+    Task Process(Func<Task> func, CancellationToken cToken);
+    Task Process(Func<Task>[] funcs, CancellationToken cToken);
 }
