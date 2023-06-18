@@ -1,7 +1,8 @@
 ﻿using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
+
 using static Net.Shared.Queues.Models.Constants.Enums.RabbitMq;
 
-namespace Net.Shared.Queues.Models.RabbitMq.Domain;
+namespace Net.Shared.Queues.RabbitMq.Domain;
 
 public sealed class RabbitMqProducerMessage<TPayload> : IMqMessage<TPayload> where TPayload : notnull
 {

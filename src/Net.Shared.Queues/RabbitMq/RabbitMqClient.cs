@@ -1,12 +1,13 @@
 ﻿using System.Text;
+
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
 using Net.Shared.Extensions;
-using Net.Shared.Extensions.Logging;
 using Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
-using Net.Shared.Queues.Models.RabbitMq.Domain;
 using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
+
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 

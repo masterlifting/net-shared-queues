@@ -1,6 +1,6 @@
 ﻿using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
 
-namespace Net.Shared.Queues.Models.RabbitMq.Domain;
+namespace Net.Shared.Queues.RabbitMq.Domain;
 
 public sealed record RabbitMqConsumerMessage : IMqMessage<string>
 {

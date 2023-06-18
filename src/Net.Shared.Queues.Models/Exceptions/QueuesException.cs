@@ -1,4 +1,6 @@
-﻿namespace Net.Shared.Queues.Models.Exceptions;
+﻿using Net.Shared.Exceptions;
+
+namespace Net.Shared.Queues.Models.Exceptions;
 
 public sealed class QueuesException : NetSharedException
 {
