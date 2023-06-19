@@ -46,7 +46,11 @@ public sealed class WorkQueue : IWorkQueue
         return Task.WhenAll(results);
     }
 
-    public void Dispose() => _queueItems.Dispose();
+    public void Dispose()
+    {
+        _queueItems.CompleteAdding();
+        _queueItems.Dispose();
+    }
 
     private async Task ProcessQueueItems()
     {
