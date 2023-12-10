@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using Net.Shared.Queues.Abstractions.Core.WorkQueue;
-using Net.Shared.Queues.Models.Exceptions;
+
+using Net.Shared.Queues.Abstractions.Interfaces.Core.WorkQueue;
+using Net.Shared.Queues.Abstractions.Models.Exceptions;
 
 namespace Net.Shared.Queues.WorkQueue;
 /// <summary>

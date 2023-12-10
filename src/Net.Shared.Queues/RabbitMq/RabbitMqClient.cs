@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using Net.Shared.Extensions;
-using Net.Shared.Queues.Models.Domain.MessageQueue.RabbitMq;
-using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
+using Net.Shared.Queues.Abstractions.Models.Domain.MessageQueue.RabbitMq;
+using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
 
 using RabbitMQ.Client;

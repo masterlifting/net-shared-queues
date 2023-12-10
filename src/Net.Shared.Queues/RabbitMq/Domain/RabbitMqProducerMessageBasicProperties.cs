@@ -1,4 +1,4 @@
-﻿using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
+﻿using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 
 using RabbitMQ.Client;
 

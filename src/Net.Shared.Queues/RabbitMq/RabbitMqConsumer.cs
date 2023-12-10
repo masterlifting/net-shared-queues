@@ -2,13 +2,13 @@
 
 using Microsoft.Extensions.Logging;
 
+using Net.Shared.Abstractions.Models.Domain;
 using Net.Shared.Extensions;
-using Net.Shared.Models.Domain;
-using Net.Shared.Queues.Abstractions.Core.MessageQueue;
-using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
-using Net.Shared.Queues.Models.Exceptions;
-using Net.Shared.Queues.Models.Settings.MessageQueue;
-using Net.Shared.Queues.Models.Settings.MessageQueue.RabbitMq;
+using Net.Shared.Queues.Abstractions.Interfaces.Core.MessageQueue;
+using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
+using Net.Shared.Queues.Abstractions.Models.Exceptions;
+using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue;
+using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
 
 using RabbitMQ.Client;

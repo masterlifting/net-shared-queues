@@ -1,4 +1,4 @@
-﻿using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
+﻿using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
 
 namespace Net.Shared.Queues.RabbitMq.Domain;
 

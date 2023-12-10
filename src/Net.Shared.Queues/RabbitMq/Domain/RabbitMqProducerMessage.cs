@@ -1,6 +1,6 @@
-﻿using Net.Shared.Queues.Abstractions.Domain.MessageQueue;
+﻿using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
 
-using static Net.Shared.Queues.Models.Constants.Enums.RabbitMq;
+using static Net.Shared.Queues.Abstractions.Constants.Enums.RabbitMq;
 
 namespace Net.Shared.Queues.RabbitMq.Domain;
 
