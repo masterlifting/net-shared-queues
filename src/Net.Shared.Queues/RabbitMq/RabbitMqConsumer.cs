@@ -93,7 +93,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
         }
         catch (Exception exception)
         {
-            _logger.Error(new QueuesException(exception));
+            _logger.ErrorShort(new QueuesException(exception));
         }
         finally
         {
