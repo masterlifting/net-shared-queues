@@ -1,4 +1,4 @@
-﻿using Net.Shared.Abstractions.Models.Domain;
+﻿using Net.Shared.Abstractions.Models.Data;
 using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue;
 

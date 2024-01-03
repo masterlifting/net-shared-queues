@@ -1,18 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="RabbitMQ.Client" Version="6.4.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="7.0.0" />
+    <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\shared-extensions\src\Net.Shared.Extensions\Net.Shared.Extensions.csproj" />
+    <ProjectReference Include="..\..\..\shared\src\Net.Shared\Net.Shared.csproj" />
     <ProjectReference Include="..\Net.Shared.Queues.Abstractions\Net.Shared.Queues.Abstractions.csproj" />
   </ItemGroup>
 

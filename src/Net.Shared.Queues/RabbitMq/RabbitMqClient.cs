@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using Net.Shared.Extensions;
+using Net.Shared.Extensions.Logging;
 using Net.Shared.Queues.Abstractions.Models.Domain.MessageQueue.RabbitMq;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;

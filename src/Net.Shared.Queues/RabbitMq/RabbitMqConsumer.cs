@@ -2,11 +2,10 @@
 
 using Microsoft.Extensions.Logging;
 
-using Net.Shared.Abstractions.Models.Domain;
-using Net.Shared.Extensions;
+using Net.Shared.Extensions.Logging;
+using Net.Shared.Abstractions.Models.Data;
 using Net.Shared.Queues.Abstractions.Interfaces.Core.MessageQueue;
 using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
-using Net.Shared.Queues.Abstractions.Models.Exceptions;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
@@ -22,13 +21,13 @@ public sealed class RabbitMqConsumer : IMqConsumer
 
     private readonly string _consumerInfo;
     private readonly RabbitMqClient _client;
-    private readonly ILogger<RabbitMqConsumer> _logger;
+    private readonly ILogger<RabbitMqConsumer> _log;
     private readonly List<RabbitMqConsumerMessage> _messages;
 
     public RabbitMqConsumer(ILogger<RabbitMqConsumer> logger, RabbitMqClient client)
     {
         _client = client;
-        _logger = logger;
+        _log = logger;
 
         _messages = new(2000);
 
@@ -42,7 +41,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
     {
         var consumerSettings =
             settings as RabbitMqConsumerSettings
-            ?? throw new QueuesException($"Configuration '{nameof(RabbitMqConsumerSettings)}' was not found.");
+            ?? throw new InvalidOperationException($"Configuration '{nameof(RabbitMqConsumerSettings)}' was not found.");
 
         _client.RegisterConsumerSync(consumerSettings, OnReceived);
 
@@ -65,21 +64,14 @@ public sealed class RabbitMqConsumer : IMqConsumer
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull
     {
-        try
-        {
             await Consume<TMessage, TPayload>(handler, settings, cToken);
 
             return new(true);
-        }
-        catch (Exception exception)
-        {
-            return new(new QueuesException(exception));
-        }
     }
     public void Dispose()
     {
         _client.Dispose();
-        _logger.Debug($"{_consumerInfo} was disconnected.");
+        _log.Debug($"{_consumerInfo} was disconnected.");
     }
 
     private async Task Invoke<TMessage, TPayload>(Func<MqConsumerSettings, IEnumerable<TMessage>, CancellationToken, Task> handler, MqConsumerSettings settings, CancellationToken cToken)
@@ -93,7 +85,7 @@ public sealed class RabbitMqConsumer : IMqConsumer
         }
         catch (Exception exception)
         {
-            _logger.ErrorShort(new QueuesException(exception));
+            _log.ErrorCompact(exception);
         }
         finally
         {

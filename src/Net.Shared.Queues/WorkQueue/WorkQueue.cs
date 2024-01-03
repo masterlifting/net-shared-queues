@@ -1,7 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
 using Net.Shared.Queues.Abstractions.Interfaces.Core.WorkQueue;
-using Net.Shared.Queues.Abstractions.Models.Exceptions;
 
 namespace Net.Shared.Queues.WorkQueue;
 /// <summary>
@@ -62,9 +61,9 @@ public sealed class WorkQueue : IWorkQueue
                 await item.Func.Invoke();
                 item.TaskCompletionSource.SetResult();
             }
-            catch (Exception exeption)
+            catch (Exception exception)
             {
-                item.TaskCompletionSource.SetException(new QueuesException(exeption));
+                item.TaskCompletionSource.SetException(exception);
             }
         }
     }

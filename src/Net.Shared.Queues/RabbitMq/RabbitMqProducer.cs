@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using Net.Shared.Abstractions.Models.Domain;
-using Net.Shared.Extensions;
+using Net.Shared.Extensions.Logging;
+using Net.Shared.Abstractions.Models.Data;
 using Net.Shared.Queues.Abstractions.Interfaces.Core.MessageQueue;
 using Net.Shared.Queues.Abstractions.Interfaces.Domain.MessageQueue;
-using Net.Shared.Queues.Abstractions.Models.Exceptions;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue;
 using Net.Shared.Queues.Abstractions.Models.Settings.MessageQueue.RabbitMq;
 using Net.Shared.Queues.RabbitMq.Domain;
@@ -15,11 +14,11 @@ public sealed class RabbitMqProducer : IMqProducer
 {
     private readonly string _producerInfo;
     private readonly RabbitMqClient _client;
-    private readonly ILogger<RabbitMqProducer> _logger;
+    private readonly ILogger<RabbitMqProducer> _log;
 
     public RabbitMqProducer(ILogger<RabbitMqProducer> logger, RabbitMqClient client)
     {
-        _logger = logger;
+        _log = logger;
         _client = client;
 
         var objectId = GetHashCode();
@@ -32,11 +31,11 @@ public sealed class RabbitMqProducer : IMqProducer
     {
         var producerSettings =
             settings as RabbitMqProducerSettings
-            ?? throw new QueuesException($"Configuration '{nameof(RabbitMqProducerSettings)}' was not found.");
+            ?? throw new InvalidOperationException($"Configuration '{nameof(RabbitMqProducerSettings)}' was not found.");
 
         var _messages = messages is IEnumerable<RabbitMqProducerMessage<TPayload>>
             ? (messages as IEnumerable<RabbitMqProducerMessage<TPayload>>)!
-            : throw new QueuesException("Messages have incorrected format.");
+            : throw new InvalidOperationException("Messages have incorrected format.");
 
         _client.PublishMessagesSync(producerSettings, _messages);
 
@@ -46,20 +45,12 @@ public sealed class RabbitMqProducer : IMqProducer
         where TMessage : class, IMqMessage<TPayload>
         where TPayload : notnull
     {
-        try
-        {
-            await Produce<TMessage, TPayload>(messages, settings, cToken);
-
-            return new(true);
-        }
-        catch (Exception exception)
-        {
-            return new(new QueuesException(exception));
-        }
+        await Produce<TMessage, TPayload>(messages, settings, cToken);
+        return new(true);
     }
     public void Dispose()
     {
         _client.Dispose();
-        _logger.Debug($"{_producerInfo} was disconnected.");
+        _log.Debug($"{_producerInfo} was disconnected.");
     }
 }
