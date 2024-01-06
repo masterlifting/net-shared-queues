@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\shared-background\src\Net.Shared.Background.Abstractions\Net.Shared.Background.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\shared-persistence\src\Net.Shared.Persistence.Abstractions\Net.Shared.Persistence.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\shared-background\src\background-abstractions\Net.Shared.Background.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\shared-persistence\src\persistence-abstractions\Net.Shared.Persistence.Abstractions.csproj" />
   </ItemGroup>
 
 </Project>
